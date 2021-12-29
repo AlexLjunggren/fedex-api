@@ -28,7 +28,7 @@ public class OauthResponseTest {
         String json = readFromResources("/oauthResponse.json");
         OauthResponse response = JsonUtils.jsonToObject(json, OauthResponse.class);
         String serializeResponse = JsonUtils.objectToJson(response);
-        assertTrue(JsonUtils.equal(json, serializeResponse));
+        assertTrue(JsonUtils.areEqual(json, serializeResponse));
     }
 
     @Test
@@ -43,7 +43,7 @@ public class OauthResponseTest {
         String json = readFromResources("/oauthErrorResponse.json");
         OauthResponse response = JsonUtils.jsonToObject(json, OauthResponse.class);
         String serializeResponse = JsonUtils.objectToJson(response);
-        assertTrue(JsonUtils.equal(json, serializeResponse));
+        assertTrue(JsonUtils.areEqual(json, serializeResponse));
     }
 
 }

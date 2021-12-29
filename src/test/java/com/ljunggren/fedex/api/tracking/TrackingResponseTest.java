@@ -29,7 +29,7 @@ public class TrackingResponseTest {
         String json = readFromResources("/trackingResponse.json");
         TrackingResponse response = JsonUtils.jsonToObject(json, TrackingResponse.class);
         String serializedResponse = JsonUtils.objectToJson(response);
-        assertTrue(JsonUtils.equal(json, serializedResponse));
+        assertTrue(JsonUtils.areEqual(json, serializedResponse));
     }
 
 }
