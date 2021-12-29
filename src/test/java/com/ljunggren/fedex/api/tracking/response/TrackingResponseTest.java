@@ -1,4 +1,4 @@
-package com.ljunggren.fedex.api.tracking;
+package com.ljunggren.fedex.api.tracking.response;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -8,7 +8,6 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
-import com.ljunggren.fedex.api.tracking.response.TrackingResponse;
 import com.ljunggren.jsonUtils.JsonUtils;
 
 public class TrackingResponseTest {
