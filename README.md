@@ -2,7 +2,7 @@
 
 **Note:** Register for API key here: https://developer.fedex.com/api/en-us/home.html
 
-Instantiate
+## Instantiate ##
 
 ```java
 FedexApi fedexApi = new FedexApi(environment, clientId, clientSecret);
@@ -21,6 +21,18 @@ String clientId = "*****************";
 String clientSecret = "************"; 
 ```
 
+## Authorize ##
+
+```java
+OauthResponse oauthResponse = fedexApi.authorize();
+```
+
+## API Token ##
+
+```java
+String accessToken = oauthResponse.getAccessToken();
+```
+
 ## Track Package(s) ##
 
 Generate Request
@@ -36,6 +48,9 @@ TrackingRequest trackingRequest = TrackingFactory.basicRequest(
 Request
 
 ```java
-TrackingResponse response = fedexApi.track(trackingRequest);
+TrackingResponse response = fedexApi.track(trackingRequest, accessToken);
 ```
 
+ - Sandbox test numbers: https://developer.fedex.com/api/en-au/catalog/ship/docs.html
+ - Web Service Documentation: http://www.fedex.com/templates/components/apps/wpor/secure/downloads/pdf/Aug13/TrackServiceGuide_2013.pdf
+  

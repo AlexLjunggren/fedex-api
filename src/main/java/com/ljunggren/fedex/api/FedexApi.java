@@ -18,6 +18,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ljunggren.fedex.api.authorization.OauthError;
 import com.ljunggren.fedex.api.authorization.OauthResponse;
 import com.ljunggren.fedex.api.tracking.request.TrackingRequest;
@@ -27,44 +28,68 @@ import com.ljunggren.jsonUtils.JsonUtils;
 
 public class FedexApi {
     
-    private FedexProperties properties;
     private String clientId;
     private String clientSecret;
+    private FedexProperties properties;
+    private CloseableHttpClient httpClient = HttpClients.custom().build();
     
-    private static final List<Integer> KNOWN_AUTH_CODES = Arrays.asList(new Integer[] {
+    public static final List<Integer> KNOWN_AUTH_CODES = Arrays.asList(new Integer[] {
             200, 401, 500, 503
     });
-    private static final List<Integer> KNOWN_REQUEST_CODES = Arrays.asList(new Integer[] {
+    public static final List<Integer> KNOWN_REQUEST_CODES = Arrays.asList(new Integer[] {
             200, 400, 401, 403, 404, 500, 503
     });
 
+    // package private for unit testing
+    FedexApi(FedexEnvironment environment, String clientId, String clientSecret, CloseableHttpClient httpClient) {
+        this(environment, clientId, clientSecret);
+        this.httpClient = httpClient;
+    }
+    
     public FedexApi(FedexEnvironment environment, String clientId, String clientSecret) {
-        properties = new FedexProperties(environment);
         this.clientId = clientId;
         this.clientSecret = clientSecret;
+        this.properties = new FedexProperties(environment);
     }
     
-    public TrackingResponse track(TrackingRequest trackingRequest) {
-        return request(trackingRequest);
+    public OauthResponse authorize() {
+        HttpPost post = new HttpPost(properties.getOauthUrl());
+        List<NameValuePair> parameters = Arrays.asList(new BasicNameValuePair[] {
+                new BasicNameValuePair("grant_type", "client_credentials"),
+                new BasicNameValuePair("client_id", clientId),
+                new BasicNameValuePair("client_secret", clientSecret)
+        });
+        try {
+            post.setEntity(new UrlEncodedFormEntity(parameters));
+            CloseableHttpResponse response = httpClient.execute(post);
+            int responseCode = response.getStatusLine().getStatusCode();
+            String json = getResult(response);
+            if (KNOWN_AUTH_CODES.contains(responseCode)) {
+                return parse(json, OauthResponse.class);
+            }
+            return new OauthResponse().addError(
+                    new OauthError("Authorization Error", String.format("Unknown response code %d", responseCode)));
+        } catch(Exception e) {
+            return new OauthResponse().addError(
+                    new OauthError("Authorization Error", e.getMessage()));
+        }
     }
     
-    private TrackingResponse request(TrackingRequest trackingRequest) {
-        String token = getToken();
+    public TrackingResponse track(TrackingRequest trackingRequest, String accessToken) {
         HttpPost post = new HttpPost(properties.getTrackingUrl());
         Header[] headers = new Header[] {
                 new BasicHeader("content-type", "application/json"),
                 new BasicHeader("x-locale", "en_US"),
-                new BasicHeader("authorization", String.format("Bearer %s", token))
+                new BasicHeader("authorization", String.format("Bearer %s", accessToken))
         };
         try {
             post.setHeaders(headers);
             post.setEntity(new StringEntity(JsonUtils.objectToJson(trackingRequest)));
-            CloseableHttpClient client = HttpClients.custom().build();
-            CloseableHttpResponse response = client.execute(post);
+            CloseableHttpResponse response = httpClient.execute(post);
             int responseCode = response.getStatusLine().getStatusCode();
             String json = getResult(response);
             if (KNOWN_REQUEST_CODES.contains(responseCode)) {
-                return JsonUtils.jsonToObject(json, TrackingResponse.class);
+                return parse(json, TrackingResponse.class);
             }
             return new TrackingResponse().addError(
                     new TrackingError("Tracking Error", null, String.format("Unknown response code %d", responseCode)));
@@ -74,31 +99,11 @@ public class FedexApi {
         }
     }
     
-    private String getToken() {
-        return authorize().getAccessToken();
-    }
-    
-    private OauthResponse authorize() {
-        HttpPost post = new HttpPost(properties.getOauthUrl());
-        List<NameValuePair> parameters = Arrays.asList(new BasicNameValuePair[] {
-                new BasicNameValuePair("grant_type", "client_credentials"),
-                new BasicNameValuePair("client_id", clientId),
-                new BasicNameValuePair("client_secret", clientSecret)
-        });
+    private <T> T parse(String json, Class<T> clazz) throws Exception {
         try {
-            post.setEntity(new UrlEncodedFormEntity(parameters));
-            CloseableHttpClient client = HttpClients.custom().build();
-            CloseableHttpResponse response = client.execute(post);
-            int responseCode = response.getStatusLine().getStatusCode();
-            String json = getResult(response);
-            if (KNOWN_AUTH_CODES.contains(responseCode)) {
-                return JsonUtils.jsonToObject(json, OauthResponse.class);
-            }
-            return new OauthResponse().addError(
-                    new OauthError("Authorization Error", String.format("Unknown response code %d", responseCode)));
-        } catch(Exception e) {
-            return new OauthResponse().addError(
-                    new OauthError("Authorization Error", e.getMessage()));
+            return JsonUtils.jsonToObject(json, clazz);
+        } catch (JsonProcessingException e) {
+            throw new Exception("Unable to parse response");
         }
     }
     
