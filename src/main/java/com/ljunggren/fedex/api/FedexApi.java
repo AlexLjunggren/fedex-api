@@ -63,8 +63,8 @@ public class FedexApi {
             post.setEntity(new UrlEncodedFormEntity(parameters));
             CloseableHttpResponse response = httpClient.execute(post);
             int responseCode = response.getStatusLine().getStatusCode();
-            String json = getResult(response);
             if (KNOWN_AUTH_CODES.contains(responseCode)) {
+                String json = getResult(response);
                 return parse(json, OauthResponse.class);
             }
             return new OauthResponse().addError(
