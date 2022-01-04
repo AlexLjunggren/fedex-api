@@ -51,6 +51,14 @@ Request
 TrackingResponse response = fedexApi.track(trackingRequest, accessToken);
 ```
 
+## Event Codes ##
+
+Scan event codes are 2 characters that can be decoded
+
+```java
+String description = ScanEventType.lookup(code).getDescription();
+```
+
  - Sandbox test numbers: https://developer.fedex.com/api/en-au/catalog/ship/docs.html
  - Web Service Documentation: http://www.fedex.com/templates/components/apps/wpor/secure/downloads/pdf/Aug13/TrackServiceGuide_2013.pdf
   

@@ -20,7 +20,7 @@ public class FedexProperties {
     }
     
     private static Map<FedexEnvironment, String> generateFileMap() {
-        Map<FedexEnvironment, String> fileMap = new HashMap<FedexEnvironment, String>();
+        Map<FedexEnvironment, String> fileMap = new HashMap<>();
         fileMap.put(FedexEnvironment.SANDBOX, "/properties/sandbox/fedex.properties");
         fileMap.put(FedexEnvironment.PRODUCTION, "/properties/production/fedex.properties");
         return fileMap;
