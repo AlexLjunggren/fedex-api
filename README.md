@@ -56,7 +56,7 @@ TrackingResponse response = fedexApi.track(trackingRequest, accessToken);
 Tracking Status (scan event) codes are 2 character strings that can be decoded
 
 ```java
-String description = TrackingStatusCodes scanEventType = TrackingStatusCodes.lookup(code).getDescription();
+String description = TrackingStatusCodes.lookup(code).getDescription();
 ```
 
 ## Other ##
