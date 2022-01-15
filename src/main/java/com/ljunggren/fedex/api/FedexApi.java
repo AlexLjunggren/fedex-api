@@ -31,7 +31,6 @@ public class FedexApi {
     private String clientId;
     private String clientSecret;
     private FedexProperties properties;
-    private CloseableHttpClient httpClient = HttpClients.custom().build();
     
     public static final List<Integer> KNOWN_AUTH_CODES = Arrays.asList(new Integer[] {
             200, 401, 500, 503
@@ -40,19 +39,18 @@ public class FedexApi {
             200, 400, 401, 403, 404, 500, 503
     });
 
-    // package private for unit testing
-    FedexApi(FedexEnvironment environment, String clientId, String clientSecret, CloseableHttpClient httpClient) {
-        this(environment, clientId, clientSecret);
-        this.httpClient = httpClient;
-    }
-    
     public FedexApi(FedexEnvironment environment, String clientId, String clientSecret) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.properties = new FedexProperties(environment);
     }
     
-    public OauthResponse authorize() {
+    public OauthResponse authorize() throws IOException {
+        return authorize(HttpClients.createDefault());
+    }
+    
+    // package private for unit testing
+    OauthResponse authorize(CloseableHttpClient httpClient) throws IOException {
         HttpPost post = new HttpPost(properties.getOauthUrl());
         List<NameValuePair> parameters = Arrays.asList(new BasicNameValuePair[] {
                 new BasicNameValuePair("grant_type", "client_credentials"),
@@ -72,10 +70,17 @@ public class FedexApi {
         } catch(Exception e) {
             return new OauthResponse().addError(
                     new OauthError("Authorization Error", e.getMessage()));
+        } finally {
+            httpClient.close();
         }
     }
     
-    public TrackingResponse track(TrackingRequest trackingRequest, String accessToken) {
+    public TrackingResponse track(TrackingRequest trackingRequest, String accessToken) throws IOException {
+        return track(trackingRequest, accessToken, HttpClients.createDefault());
+    }
+    
+    // package private for unit testing
+    TrackingResponse track(TrackingRequest trackingRequest, String accessToken, CloseableHttpClient httpClient) throws IOException {
         HttpPost post = new HttpPost(properties.getTrackingUrl());
         Header[] headers = new Header[] {
                 new BasicHeader("content-type", "application/json"),
@@ -96,6 +101,8 @@ public class FedexApi {
         } catch(Exception e) {
             return new TrackingResponse().addError(
                     new TrackingError("Tracking Error", null, e.getMessage()));
+        } finally {
+            httpClient.close();
         }
     }
     

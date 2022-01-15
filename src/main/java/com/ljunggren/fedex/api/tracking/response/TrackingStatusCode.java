@@ -1,6 +1,6 @@
 package com.ljunggren.fedex.api.tracking.response;
 
-public enum TrackingStatusCodes {
+public enum TrackingStatusCode {
 
     AA("At Airport"),
     AC("At Canada Post facility"),
@@ -49,11 +49,23 @@ public enum TrackingStatusCodes {
     SF("At Sort Facility"),
     SP("Split Status"),
     TR("Transfer"),
+    
+    // Regulatory
+    CC("Cleared Customs"),
+    CD("Clearance Delay"),
+    CP("Clearance in Progress"),
+    
+    // Possession
+    SH("Shipper"),
+    CU("Customs"),
+    BR("Broker"),
+    TP("TransferPartner"),
+    
     UNKNOWN("Unknown");
     
     private String description;
 
-    private TrackingStatusCodes(String description) {
+    private TrackingStatusCode(String description) {
         this.description = description;
     }
 
@@ -61,11 +73,11 @@ public enum TrackingStatusCodes {
         return description;
     }
     
-    public static TrackingStatusCodes lookup(String id) {
+    public static TrackingStatusCode lookup(String id) {
         try {
-            return TrackingStatusCodes.valueOf(id);
+            return TrackingStatusCode.valueOf(id);
         } catch (IllegalArgumentException e) {
-            return TrackingStatusCodes.UNKNOWN;
+            return TrackingStatusCode.UNKNOWN;
         }
     }
     

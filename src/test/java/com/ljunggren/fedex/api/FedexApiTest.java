@@ -59,8 +59,8 @@ public class FedexApiTest {
         String json = readFromResources("/OauthResponse.json");
         setup(json, 200);
         FedexEnvironment environment = FedexEnvironment.SANDBOX;
-        FedexApi fedexApi = new FedexApi(environment, "clientId", "clientSecret", httpClient);
-        OauthResponse oauthResponse = fedexApi.authorize();
+        FedexApi fedexApi = new FedexApi(environment, "clientId", "clientSecret");
+        OauthResponse oauthResponse = fedexApi.authorize(httpClient);
         String expected = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJDWFMiLCJTRUNVUkUiX";
         assertEquals(expected, oauthResponse.getAccessToken());
     }
@@ -70,8 +70,8 @@ public class FedexApiTest {
         String json = "notRealResponse";
         setup(json, 407);
         FedexEnvironment environment = FedexEnvironment.SANDBOX;
-        FedexApi fedexApi = new FedexApi(environment, "clientId", "clientSecret", httpClient);
-        OauthResponse oauthResponse = fedexApi.authorize();
+        FedexApi fedexApi = new FedexApi(environment, "clientId", "clientSecret");
+        OauthResponse oauthResponse = fedexApi.authorize(httpClient);
         assertEquals(1, oauthResponse.getErrors().size());
         assertEquals("Unknown response code 407", oauthResponse.getErrors().get(0).getMessage());
     }
@@ -81,8 +81,8 @@ public class FedexApiTest {
         String json = "notRealResponse";
         setup(json, 200);
         FedexEnvironment environment = FedexEnvironment.SANDBOX;
-        FedexApi fedexApi = new FedexApi(environment, "clientId", "clientSecret", httpClient);
-        OauthResponse oauthResponse = fedexApi.authorize();
+        FedexApi fedexApi = new FedexApi(environment, "clientId", "clientSecret");
+        OauthResponse oauthResponse = fedexApi.authorize(httpClient);
         assertEquals(1, oauthResponse.getErrors().size());
         assertEquals("Unable to parse response", oauthResponse.getErrors().get(0).getMessage());
     }
@@ -93,8 +93,8 @@ public class FedexApiTest {
         String json = readFromResources("/trackingResponse.json");
         setup(json, 200);
         FedexEnvironment environment = FedexEnvironment.SANDBOX;
-        FedexApi fedexApi = new FedexApi(environment, "clientId", "clientSecret", httpClient);
-        TrackingResponse trackingResponse = fedexApi.track(trackingRequest, "token");
+        FedexApi fedexApi = new FedexApi(environment, "clientId", "clientSecret");
+        TrackingResponse trackingResponse = fedexApi.track(trackingRequest, "token", httpClient);
         assertNull(trackingResponse.getErrors());
     }
     
@@ -104,8 +104,8 @@ public class FedexApiTest {
         String json = "notRealResponse";
         setup(json, 407);
         FedexEnvironment environment = FedexEnvironment.SANDBOX;
-        FedexApi fedexApi = new FedexApi(environment, "clientId", "clientSecret", httpClient);
-        TrackingResponse trackingResponse = fedexApi.track(trackingRequest, "token");
+        FedexApi fedexApi = new FedexApi(environment, "clientId", "clientSecret");
+        TrackingResponse trackingResponse = fedexApi.track(trackingRequest, "token", httpClient);
         assertEquals(1, trackingResponse.getErrors().size());
         assertEquals("Unknown response code 407", trackingResponse.getErrors().get(0).getMessage());
     }
@@ -116,8 +116,8 @@ public class FedexApiTest {
         String json = "notRealResponse";
         setup(json, 200);
         FedexEnvironment environment = FedexEnvironment.SANDBOX;
-        FedexApi fedexApi = new FedexApi(environment, "clientId", "clientSecret", httpClient);
-        TrackingResponse trackingResponse = fedexApi.track(trackingRequest, "token");
+        FedexApi fedexApi = new FedexApi(environment, "clientId", "clientSecret");
+        TrackingResponse trackingResponse = fedexApi.track(trackingRequest, "token", httpClient);
         assertEquals(1, trackingResponse.getErrors().size());
         assertEquals("Unable to parse response", trackingResponse.getErrors().get(0).getMessage());
     }
