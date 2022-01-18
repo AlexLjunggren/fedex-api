@@ -9,6 +9,8 @@ import java.util.List;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -38,6 +40,7 @@ public class FedexApi {
     public static final List<Integer> KNOWN_REQUEST_CODES = Arrays.asList(new Integer[] {
             200, 400, 401, 403, 404, 500, 503
     });
+    public static final int THROTTLING_CODE = 429;
 
     public FedexApi(FedexEnvironment environment, String clientId, String clientSecret) {
         this.clientId = clientId;
@@ -46,7 +49,7 @@ public class FedexApi {
     }
     
     public OauthResponse authorize() throws IOException {
-        return authorize(HttpClients.createDefault());
+        return authorize(getHttpClient());
     }
     
     // package private for unit testing
@@ -76,7 +79,7 @@ public class FedexApi {
     }
     
     public TrackingResponse track(TrackingRequest trackingRequest, String accessToken) throws IOException {
-        return track(trackingRequest, accessToken, HttpClients.createDefault());
+        return track(trackingRequest, accessToken, getHttpClient());
     }
     
     // package private for unit testing
@@ -96,6 +99,10 @@ public class FedexApi {
             if (KNOWN_REQUEST_CODES.contains(responseCode)) {
                 return parse(json, TrackingResponse.class);
             }
+            if (THROTTLING_CODE == responseCode) {
+                return new TrackingResponse().addError(
+                        new TrackingError("Throttled", null, "Too many requests"));
+            }
             return new TrackingResponse().addError(
                     new TrackingError("Tracking Error", null, String.format("Unknown response code %d", responseCode)));
         } catch(Exception e) {
@@ -104,6 +111,13 @@ public class FedexApi {
         } finally {
             httpClient.close();
         }
+    }
+    
+    private CloseableHttpClient getHttpClient() {
+        return HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                .build();
     }
     
     private <T> T parse(String json, Class<T> clazz) throws Exception {
