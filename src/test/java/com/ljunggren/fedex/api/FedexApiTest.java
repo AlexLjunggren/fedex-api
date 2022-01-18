@@ -111,6 +111,18 @@ public class FedexApiTest {
     }
     
     @Test
+    public void trackThrottlingResponseCodeTest() throws IOException {
+        TrackingRequest trackingRequest = TrackingFactory.basicRequest("12345");
+        String json = "notRealResponse";
+        setup(json, 429);
+        FedexEnvironment environment = FedexEnvironment.SANDBOX;
+        FedexApi fedexApi = new FedexApi(environment, "clientId", "clientSecret");
+        TrackingResponse trackingResponse = fedexApi.track(trackingRequest, "token", httpClient);
+        assertEquals(1, trackingResponse.getErrors().size());
+        assertEquals("Too many requests", trackingResponse.getErrors().get(0).getMessage());
+    }
+    
+    @Test
     public void trackExceptionThrownTest() throws IOException {
         TrackingRequest trackingRequest = TrackingFactory.basicRequest("12345");
         String json = "notRealResponse";
