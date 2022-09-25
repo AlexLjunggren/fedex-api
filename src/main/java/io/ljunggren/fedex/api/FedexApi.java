@@ -84,7 +84,7 @@ public class FedexApi {
     }
     
     // package private for unit testing
-    TrackingResponse track(TrackingRequest trackingRequest, String accessToken, CloseableHttpClient httpClient) throws IOException {
+    public TrackingResponse track(TrackingRequest trackingRequest, String accessToken, CloseableHttpClient httpClient) throws IOException {
         HttpPost post = new HttpPost(properties.getTrackingUrl());
         Header[] headers = new Header[] {
                 new BasicHeader("content-type", "application/json"),
