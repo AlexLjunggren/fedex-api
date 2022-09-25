@@ -53,7 +53,7 @@ public class FedexApi {
         return authorize(getHttpClient());
     }
     
-    // package private for unit testing
+    // package default for unit testing
     OauthResponse authorize(CloseableHttpClient httpClient) throws IOException {
         HttpPost post = new HttpPost(properties.getOauthUrl());
         List<NameValuePair> parameters = Arrays.asList(new BasicNameValuePair[] {
