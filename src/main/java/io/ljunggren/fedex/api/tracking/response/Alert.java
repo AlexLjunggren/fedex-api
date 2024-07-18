@@ -1,7 +1,5 @@
 package io.ljunggren.fedex.api.tracking.response;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -15,9 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
-public class Output {
+public class Alert {
 
-    private List<CompleteTrackResult> completeTrackResults;
-    private List<Alert> alerts;
+    private String code;
+    private String message;
+    private String alertType;
     
 }
