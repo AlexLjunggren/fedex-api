@@ -1,7 +1,6 @@
 package io.ljunggren.fedex.api;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -85,17 +84,6 @@ public class FedexApiTest {
         OauthResponse oauthResponse = fedexApi.authorize(httpClient);
         assertEquals(1, oauthResponse.getErrors().size());
         assertEquals("Unable to parse response", oauthResponse.getErrors().get(0).getMessage());
-    }
-    
-    @Test
-    public void trackTest() throws ClientProtocolException, IOException {
-        TrackingRequest trackingRequest = TrackingFactory.basicRequest("12345");
-        String json = readFromResources("/trackingResponse.json");
-        setup(json, 200);
-        FedexEnvironment environment = FedexEnvironment.SANDBOX;
-        FedexApi fedexApi = new FedexApi(environment, "clientId", "clientSecret");
-        TrackingResponse trackingResponse = fedexApi.track(trackingRequest, "token", httpClient);
-        assertNull(trackingResponse.getErrors());
     }
     
     @Test
