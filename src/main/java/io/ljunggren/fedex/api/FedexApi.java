@@ -27,7 +27,7 @@ import io.ljunggren.fedex.api.authorization.OauthResponse;
 import io.ljunggren.fedex.api.tracking.request.TrackingRequest;
 import io.ljunggren.fedex.api.tracking.response.TrackingError;
 import io.ljunggren.fedex.api.tracking.response.TrackingResponse;
-import io.ljunggren.jsonUtils.JsonUtils;
+import io.ljunggren.json.utils.JsonUtils;
 
 public class FedexApi {
     
